@@ -496,7 +496,12 @@
       color: #245c51;
     }
 
-    .guide-group.avoid h2 { color: #ad4536; }
+    .guide-group.avoid {
+      border-color: #6a3028;
+      background: #79392f;
+    }
+
+    .guide-group.avoid h2 { color: #fffbef; }
 
     .guide-items {
       display: grid;
@@ -535,9 +540,13 @@
       touch-action: manipulation;
     }
 
-    .avoid .guide-card { background: #faeee4; }
     .guide-card:hover { background: #dceadc; }
-    .avoid .guide-card:hover { background: #f3ded0; }
+    .avoid .guide-card {
+      background: #984c40;
+      color: #fffbef;
+    }
+    .avoid .guide-card:hover { background: #a75446; }
+    .avoid .guide-card:focus-visible { outline-color: #ffdda0; }
     .guide-items .item-icon { box-shadow: none; }
 
     .item-tooltip {
