@@ -350,19 +350,22 @@
     #cover.game-over { grid-template-rows: minmax(0, 1fr); padding: 8px 10px 12px; }
     #cover.game-over .panel {
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr) auto;
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
       width: min(680px, 100%);
       max-height: 100%;
       padding: clamp(12px, 2.8vw, 22px);
     }
     #cover.game-over .round-details { overflow-y: auto; }
-    #cover.game-over .round-actions { margin-top: 6px;
+    #cover.game-over .round-actions { margin-top: 6px; }
+    #cover.game-over .round-entry { padding-top: 4px; }
+    .round-entry:not(:has(.name-form:not([hidden]), .save-status:not(:empty), .score-retry:not([hidden]))) {
+      display: none;
     }
     #cover.game-over .samples { display: none; }
     #cover.game-over #round-score { margin: 3px 0 10px; }
     #cover.game-over .name-form {
       width: min(100%, 380px);
-      margin: 0 auto 10px;
+      margin: 0 auto 4px;
     }
 
     .round-actions { display: flex; justify-content: center; gap: 10px; }
@@ -377,7 +380,8 @@
     .round-fact {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 37%);
-      gap: clamp(16px, 3vw, 26px);
+      grid-template-areas: "toolbar photo" "copy photo";
+      gap: 5px clamp(16px, 3vw, 26px);
       align-items: center;
       margin-bottom: 14px;
       padding: clamp(14px, 2.5vw, 22px);
@@ -389,6 +393,8 @@
     .round-fact[hidden] { display: none; }
 
     .round-fact-toolbar {
+      grid-area: toolbar;
+      align-self: end;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -413,7 +419,8 @@
     }
     .round-fact h3 { margin: 0; font-size: clamp(1.05rem, 3vw, 1.3rem); line-height: 1.27; }
     .round-fact p { margin: 9px 0 0; font-size: .9375rem; line-height: 1.68; }
-    .round-fact figure { min-width: 0; margin: 0; }
+    .round-fact-copy { grid-area: copy; align-self: start; }
+    .round-fact figure { grid-area: photo; min-width: 0; margin: 0; }
     .round-fact img {
       display: block;
       width: auto;
@@ -434,18 +441,23 @@
     .round-fact-credit[hidden] { display: none; }
 
     @media (min-width: 681px) and (max-height: 850px) {
-      #cover.game-over .panel { padding-block: 13px; }
-      .round-fact { padding-block: 14px; margin-bottom: 10px; }
-      .round-fact img { max-height: 162px; }
+      #cover.game-over .panel { padding-block: 12px; }
+      .round-fact { padding-block: 11px; margin-bottom: 5px; }
+      .round-fact img { max-height: clamp(105px, 19svh, 150px); }
     }
 
     @media (max-width: 560px) {
       #cover.game-over { padding: 7px 7px 12px; }
       #cover.game-over .name-form { gap: 5px; padding: 7px; }
       #cover.game-over .name-input { min-width: 0; }
-      .round-fact { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 13px; }
-      .round-fact figure { grid-row: 1; }
-      .round-fact img { max-height: clamp(145px, 23svh, 175px); }
+      .round-fact { display: flow-root; padding: 10px; margin-bottom: 6px; }
+      .round-fact figure {
+        float: right;
+        width: clamp(72px, 30%, 96px);
+        margin: 2px 0 5px 9px;
+      }
+      .round-fact img { max-height: 74px; }
+      .round-fact-credit { font-size: .64rem; }
       .round-fact p { font-size: .875rem; }
       .round-actions button { padding-inline: 15px; }
     }
@@ -459,7 +471,38 @@
       background: #fffbef;
       box-shadow: 0 5px 0 #b8cdbb;
     }
-    .leaderboard h2 { margin: 0 0 10px 8px; color: #ad4536; font-size: 1.65rem; }
+    .leaderboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 8px 10px;
+    }
+    .leaderboard h2 { margin: 0; color: #ad4536; font-size: 1.65rem; }
+    .leaderboard-header:has(.leaderboard-refresh:not([hidden])) { gap: 6px; margin-inline: 2px; }
+    .leaderboard-header:has(.leaderboard-refresh:not([hidden])) h2 {
+      font-size: clamp(1.03rem, 1.5vw, 1.25rem);
+      white-space: nowrap;
+    }
+    .leaderboard-refresh, .score-retry {
+      min-height: 30px;
+      padding: 4px 9px;
+      background: #e7efe4;
+      color: #245c51;
+      box-shadow: inset 0 0 0 1px #98b3a5;
+      font-size: .75rem;
+    }
+    .leaderboard-refresh:hover, .score-retry:hover { background: #d7e8d9; }
+    .leaderboard-refresh[hidden], .score-retry[hidden] { display: none; }
+    .score-retry { display: block; margin: 0 auto 10px; }
+    .leaderboard-status {
+      min-height: 1.2em;
+      margin: -4px 8px 8px;
+      color: #506b60;
+      font-size: .75rem;
+      line-height: 1.35;
+    }
+    .leaderboard-status:empty { display: none; }
     .ranking-list {
       display: grid;
       flex: 1;
@@ -728,13 +771,9 @@
               </p>
               <p id="round-score" hidden></p>
               <section id="round-fact" class="round-fact" aria-labelledby="round-fact-title" hidden>
-                <div>
-                  <div class="round-fact-toolbar">
-                    <span id="round-fact-label" class="round-fact-label">Did you know?</span>
-                    <button type="button" id="round-fact-language" lang="de">Deutsch</button>
-                  </div>
-                  <h3 id="round-fact-title"></h3>
-                  <p id="round-fact-detail"></p>
+                <div class="round-fact-toolbar">
+                  <span id="round-fact-label" class="round-fact-label">Did you know?</span>
+                  <button type="button" id="round-fact-language" lang="de">Deutsch</button>
                 </div>
                 <figure>
                   <img id="round-fact-photo" alt="">
@@ -743,7 +782,13 @@
                     <a id="round-fact-license" target="_blank" rel="noopener noreferrer"></a>
                   </figcaption>
                 </figure>
+                <div class="round-fact-copy">
+                  <h3 id="round-fact-title"></h3>
+                  <p id="round-fact-detail"></p>
+                </div>
               </section>
+            </div>
+            <div class="round-entry">
               <form id="name-form" class="name-form" hidden>
                 <label for="player-name">Top 10! Add your name?</label>
                 <div class="name-input">
@@ -752,6 +797,7 @@
                 </div>
               </form>
               <p id="save-status" class="save-status" role="status"></p>
+              <button type="button" id="score-retry" class="score-retry" hidden>Retry Leaderboard</button>
             </div>
             <div class="round-actions">
               <button type="button" id="start">Start Game</button>
@@ -768,7 +814,11 @@
         </div>
       </section>
       <aside class="leaderboard" aria-labelledby="leaderboard-title">
-        <h2 id="leaderboard-title">Top 10</h2>
+        <div class="leaderboard-header">
+          <h2 id="leaderboard-title">Top 10</h2>
+          <button type="button" id="leaderboard-refresh" class="leaderboard-refresh" hidden>Refresh</button>
+        </div>
+        <p id="leaderboard-status" class="leaderboard-status" role="status"></p>
         <ol id="ranking-list" class="ranking-list"></ol>
       </aside>
     </div>
@@ -812,6 +862,10 @@
     const MAX_RANKS = 10;
     const RECORD_KEY = "taiwan-catch-leaderboard-v1";
     const FACT_PROGRESS_KEY = "taiwan-catch-next-fact-v1";
+    const SUPABASE_URL = "https://axxlxoqvhsaitzqlqcnt.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_fnQ3cw0sHKtSZFXB99ohyg_OtU8DwY6";
+    const CLOUD_MODE = location.protocol === "https:" ||
+      (location.protocol === "http:" && window.isSecureContext);
     // Each rectangle is [left, top, width, height] in the original image.
     const TAIWAN = [
       ["Taiwan Flag", null],
@@ -905,15 +959,26 @@
     const lockHint = document.querySelector("#lock-hint");
     const nameForm = document.querySelector("#name-form");
     const playerName = document.querySelector("#player-name");
+    const scoreSubmit = nameForm.querySelector('button[type="submit"]');
     const saveStatus = document.querySelector("#save-status");
+    const scoreRetry = document.querySelector("#score-retry");
     const rankingList = document.querySelector("#ranking-list");
+    const leaderboardTitle = document.querySelector("#leaderboard-title");
+    const leaderboardRefresh = document.querySelector("#leaderboard-refresh");
+    const leaderboardStatus = document.querySelector("#leaderboard-status");
     const heartDisplay = document.querySelector("#hearts");
     const hearts = Array.from(heartDisplay.children);
     const scoreDisplay = document.querySelector("#score");
 
     let storageAvailable = true;
-    let ranks = readRanks() ?? [];
+    let ranks = CLOUD_MODE ? [] : (readRanks() ?? []);
     let pendingScore = false;
+    let completedCloudRound = null;
+    let cloudMutationVersion = 0;
+    let latestRankRequest = 0;
+    let latestCommittedRankRequest = 0;
+    let latestSubmitSequence = 0;
+    let latestCommittedSubmit = 0;
     let health = FULL_HEALTH;
     let score = 0;
     let width = 0;
@@ -956,6 +1021,17 @@
       return ranks.length < MAX_RANKS || points > ranks[MAX_RANKS - 1].score;
     }
 
+    function sanitizeRanks(value) {
+      if (!Array.isArray(value)) throw new Error("Invalid leaderboard response");
+      return value.filter((entry) => (
+        typeof entry?.name === "string" && entry.name.trim() &&
+        Number.isSafeInteger(entry.score) && entry.score >= 0
+      )).map((entry) => ({
+        name: entry.name.trim().slice(0, 24),
+        score: entry.score,
+      })).sort((a, b) => b.score - a.score).slice(0, MAX_RANKS);
+    }
+
     function renderRanks() {
       const rows = Array.from({ length: MAX_RANKS }, (_, index) => {
         const row = document.createElement("li");
@@ -970,7 +1046,7 @@
       rankingList.replaceChildren(...rows);
     }
 
-    function refreshRanks() {
+    function refreshLocalRanks() {
       ranks = readRanks() ?? ranks;
       renderRanks();
       if (pendingScore && !qualifies(score)) {
@@ -981,9 +1057,78 @@
       }
     }
 
-    function saveScore(event) {
-      event.preventDefault();
-      refreshRanks();
+    async function cloudRpc(functionName, body) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      try {
+        const response = await fetch(SUPABASE_URL + "/rest/v1/rpc/" + functionName, {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_PUBLISHABLE_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("Leaderboard request failed");
+        return await response.json();
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    async function refreshCloudRanks() {
+      const requestId = ++latestRankRequest;
+      const mutationVersion = cloudMutationVersion;
+      leaderboardStatus.textContent = "Loading shared scores…";
+      leaderboardRefresh.disabled = true;
+      try {
+        const nextRanks = sanitizeRanks(await cloudRpc("taiwan_catch_top_scores", {}));
+        if (mutationVersion === cloudMutationVersion && requestId >= latestCommittedRankRequest) {
+          ranks = nextRanks;
+          latestCommittedRankRequest = requestId;
+          renderRanks();
+        }
+        if (requestId === latestRankRequest) leaderboardStatus.textContent = "";
+        return true;
+      } catch {
+        if (requestId === latestRankRequest) {
+          leaderboardStatus.textContent = "Shared scores are unavailable.";
+        }
+        return false;
+      } finally {
+        if (requestId === latestRankRequest) leaderboardRefresh.disabled = false;
+      }
+    }
+
+    function showCloudQualification(round) {
+      if (completedCloudRound !== round || running || round.submitting || round.saved) return;
+      pendingScore = round.attempted || qualifies(round.score);
+      nameForm.hidden = !pendingScore;
+      scoreRetry.hidden = true;
+      if (!round.attempted) saveStatus.textContent = "";
+    }
+
+    async function refreshCloudForRound(round) {
+      if (completedCloudRound !== round || running) return;
+      if (round.saved || round.submitting) {
+        await refreshCloudRanks();
+        return;
+      }
+      scoreRetry.hidden = true;
+      if (nameForm.hidden) saveStatus.textContent = "Checking the shared leaderboard…";
+      const loaded = await refreshCloudRanks();
+      if (completedCloudRound !== round || running || round.submitting || round.saved) return;
+      if (loaded) {
+        showCloudQualification(round);
+      } else {
+        saveStatus.textContent = "Couldn’t check whether this score made the shared top 10.";
+        scoreRetry.hidden = false;
+      }
+    }
+
+    function saveLocalScore() {
+      refreshLocalRanks();
       if (!pendingScore) return;
 
       const name = playerName.value.trim().slice(0, 24);
@@ -1006,6 +1151,71 @@
       saveStatus.textContent = storageAvailable ? "Score saved!" : "Score saved for this session.";
       renderRanks();
       start.focus({ preventScroll: true });
+    }
+
+    async function saveCloudScore() {
+      const round = completedCloudRound;
+      if (!pendingScore || !round || running || round.submitting || round.saved) return;
+
+      const name = playerName.value.trim().slice(0, 24);
+      if (!name) {
+        playerName.setCustomValidity("Enter a name to save your score.");
+        playerName.reportValidity();
+        return;
+      }
+
+      round.submitting = true;
+      round.attempted = true;
+      const submitSequence = ++latestSubmitSequence;
+      playerName.disabled = true;
+      scoreSubmit.disabled = true;
+      scoreSubmit.textContent = "Saving…";
+      saveStatus.textContent = "Saving to the shared leaderboard…";
+
+      try {
+        const result = await cloudRpc("taiwan_catch_submit_score", {
+          p_round_id: round.id,
+          p_name: name,
+          p_score: round.score,
+        });
+        if (typeof result?.accepted !== "boolean") throw new Error("Invalid save response");
+        const nextRanks = sanitizeRanks(result.ranks);
+        cloudMutationVersion += 1;
+        if (submitSequence >= latestCommittedSubmit) {
+          latestCommittedSubmit = submitSequence;
+          ranks = nextRanks;
+          renderRanks();
+        }
+        round.saved = true;
+        if (completedCloudRound === round) {
+          pendingScore = false;
+          nameForm.hidden = true;
+          saveStatus.textContent = result.accepted
+            ? "Score saved to the shared leaderboard!"
+            : "The leaderboard changed and this score no longer makes the top 10.";
+          start.focus({ preventScroll: true });
+        }
+      } catch {
+        if (completedCloudRound === round && !running) {
+          saveStatus.textContent = "Couldn’t save your score. Try again.";
+          scoreSubmit.textContent = "Try Again";
+        }
+      } finally {
+        round.submitting = false;
+        if (completedCloudRound === round && !round.saved) {
+          playerName.disabled = false;
+          scoreSubmit.disabled = false;
+        }
+      }
+    }
+
+    function saveScore(event) {
+      event.preventDefault();
+      if (CLOUD_MODE) {
+        saveCloudScore();
+      } else {
+        saveLocalScore();
+      }
     }
 
     function measure() {
@@ -1112,8 +1322,13 @@
     }
 
     function resetRound() {
+      completedCloudRound = null;
       pendingScore = false;
       nameForm.hidden = true;
+      playerName.disabled = false;
+      scoreSubmit.disabled = false;
+      scoreSubmit.textContent = "Save Score";
+      scoreRetry.hidden = true;
       saveStatus.textContent = "";
       health = FULL_HEALTH;
       updateHearts();
@@ -1258,9 +1473,20 @@
       cover.classList.add("game-over");
       cover.hidden = false;
       roundDetails.scrollTop = 0;
-      refreshRanks();
-      pendingScore = qualifies(score);
-      nameForm.hidden = !pendingScore;
+      if (CLOUD_MODE) {
+        completedCloudRound = {
+          id: crypto.randomUUID(),
+          score,
+          submitting: false,
+          attempted: false,
+          saved: false,
+        };
+        refreshCloudForRound(completedCloudRound);
+      } else {
+        refreshLocalRanks();
+        pendingScore = qualifies(score);
+        nameForm.hidden = !pendingScore;
+      }
       heading.focus({ preventScroll: true });
     }
 
@@ -1381,13 +1607,38 @@
     });
     nameForm.addEventListener("submit", saveScore);
     playerName.addEventListener("input", () => playerName.setCustomValidity(""));
+    scoreRetry.addEventListener("click", () => {
+      if (completedCloudRound) refreshCloudForRound(completedCloudRound);
+    });
+    leaderboardRefresh.addEventListener("click", () => {
+      if (completedCloudRound && !running) {
+        refreshCloudForRound(completedCloudRound);
+      } else {
+        refreshCloudRanks();
+      }
+    });
     window.addEventListener("storage", (event) => {
-      if (event.key === RECORD_KEY || event.key === null) refreshRanks();
+      if (!CLOUD_MODE && (event.key === RECORD_KEY || event.key === null)) refreshLocalRanks();
       if (event.key === FACT_PROGRESS_KEY || event.key === null) nextFactIndex = readFactProgress();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (!CLOUD_MODE || document.visibilityState !== "visible") return;
+      if (completedCloudRound && !running) {
+        refreshCloudForRound(completedCloudRound);
+      } else {
+        refreshCloudRanks();
+      }
     });
     new ResizeObserver(measure).observe(arena);
     updateHearts();
     renderRanks();
+    if (CLOUD_MODE) {
+      leaderboardTitle.textContent = "Shared Top 10";
+      nameForm.querySelector("label").textContent = "Top 10! Add a public nickname?";
+      playerName.placeholder = "Your nickname";
+      leaderboardRefresh.hidden = false;
+      refreshCloudRanks();
+    }
     measure();
 
     const ITEM_NOTES = {
